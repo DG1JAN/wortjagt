@@ -1,0 +1,82 @@
+Gesprächsprotokoll: Amateurfunkregister und Wortjagd
+Datum: 23.11.2026
+
+Hinweis: Die Nutzerwünsche sind wörtlich wiedergegeben. Die Antworten des Assistenten sind zusammengefasst; interne Zwischenschritte und Werkzeugausgaben sind nicht enthalten.
+
+1. Nutzer:
+„erstelle eine lokale HTML Anwendung die Auf basis der Rufzeichenliste eine suche nach Rufzeichen, Namen und Orten erlaubt. die datensätze sollen dabei von der pdf datei in eine geeignetere lokale datenbakformat überführt werden“
+
+Assistent (Zusammenfassung):
+Erstellte für HAM_Datenbank ein lokales Suchregister mit SQLite-Datenbank, Browser-Datenexport, HTML-Oberfläche und Importskript für die PDF.
+
+2. Nutzer:
+„ändere das Farbchema der website in ein Blau (wie es auch der deutsche amateur radio club verwendet). Zeige beim öffnen der seite keine datensätze an, erst bei der suche“
+
+Assistent (Zusammenfassung):
+Stellte die Oberfläche auf ein DARC-inspiriertes Blau um und blendete Ergebnisse bis zur Eingabe einer Suche aus.
+
+3. Nutzer:
+„new context“
+
+Assistent:
+„Understood. What would you like to work on in this new context?“
+
+4. Nutzer:
+„erstelle ein html basiertes spiel im stil von Moorhun. darin soll man auf deutsche wörte schießen können. es soll in einer txt datei wörter gespeichert werden, dabei ist das erste wort in der Zeile die richtige schreibweise, alle folgenden wörter in der zeile (werden durch komma getrennt) und sind eine falsche schreibweise des wortes. alle worte sollen per zufall erscheinen. wenn ein falsch geschriebenes wort getroffen wir, erhält der spieler punkte. wenn ein richtig gescriebenes wort getroffen wird werden punkte abgezogen“
+
+Assistent (Zusammenfassung):
+Erstellte in WortJagt ein lokal ausführbares HTML-Spiel, eine editierbare TXT-Wortliste und eine Anleitung. Falsche Schreibweisen geben Punkte; Treffer auf korrekte Schreibweisen ziehen Punkte ab.
+
+5. Nutzer:
+„mache das spielfeld etwa 50% größer. die wörter sollen halb so schnell erscheinen. erstelle ein paar bäume mit tirern als hintergrund. Wenn ein wort getroffen wurde und es falsch geschieben war. soll beim blatzen die blase Grün werden. wenn es richtig geschrieben wurde soll die blase rot sein. Die Punkteanzeige die bei einme treffer erscheint, soll doppelt so groß sein“
+
+Assistent (Zusammenfassung):
+Vergrößerte das Spielfeld, verlangsamte das Erscheinen der Wörter, ergänzte Bäume und Tiere sowie grüne beziehungsweise rote Trefferanzeigen und vergrößerte die Punkteanzeige.
+
+6. Nutzer:
+„die fliegenden wörter sollen die form von Eulen haben. der mauszeiger soll um das kreux noch einen kreis haben. ab oberen rand soll ein slider sein, mit dem man die geschwindigkeit (in beide richtungen) der erscheinenden worte anpassen kann“
+
+Assistent (Zusammenfassung):
+Gestaltete die Ziele als Eulen, ergänzte ein rundes Fadenkreuz und einen Flugtempo-Regler für beide Bewegungsrichtungen.
+
+7. Nutzer:
+„die wärter sollen in blasen (wie vorher) sein, die von den krallen der Eulen gehalten werden“
+
+Assistent (Zusammenfassung):
+Setzte die Wörter in Sprechblasen unter den Eulen und ergänzte sichtbare Krallen. Die Blasen ändern sich bei Treffern weiterhin grün oder rot.
+
+8. Nutzer:
+„die wortblasen sollen keinen zipfel haben. der Text soll zentriert in ihnen sein und die schriftgröße soll größer sein“
+
+Assistent (Zusammenfassung):
+Entfernte den Blasenzipfel, zentrierte den Text und vergrößerte die Schrift auch für Mobilgeräte.
+
+9. Nutzer:
+„beim klicken im spiel soll es ein geräusch eines schuss mit einer flinte geben. wenn eine eule getroffen wurde soll es ein quitischeges Eulengeräusch geben“
+
+Assistent (Zusammenfassung):
+Ergänzte offline erzeugte Browser-Geräusche für Flintenschuss und Eulentreffer.
+
+10. Nutzer:
+„wird ein richtig geschriebenes wort getroffen, soll der sound anders klingen. wie eine enttäuschte eule“
+
+Assistent (Zusammenfassung):
+Ordnete korrekten Wörtern einen eigenen tieferen, fallenden Enttäuschungslaut zu. Falsche Schreibweisen behalten den hohen Eulenquietscher.
+
+11. Nutzer:
+„erstelle eine Wortliste mit den 100 am meisten falsch geschriebenen Worten und ihren entsprehend oft falsch geschriebenen Varianten“
+
+Assistent (Zusammenfassung):
+Erweiterte wortliste.txt auf 100 eindeutige Wortgruppen. Die Auswahl orientiert sich an Dudens Sammlung häufiger Falschschreibweisen. Da Duden keine Rangfolge veröffentlicht, ist die Auswahl ausdrücklich nicht als statistische Top-100 sortiert gekennzeichnet.
+
+12. Nutzer:
+„entferne den schriftzug FELDPOSTEN“
+
+Assistent (Zusammenfassung):
+Entfernte „Feldposten 07“ aus der Kopfzeile und ließ Symbol und „Wortjagd“ stehen.
+
+13. Nutzer:
+„speichere diesen Dialog in eine textdatei“
+
+Assistent (Zusammenfassung):
+Speicherte dieses Gesprächsprotokoll als WortJagt/dialog.txt.

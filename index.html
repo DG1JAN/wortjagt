@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183e39">
+  <title>Wortjagd | Schreibfehler im Visier</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #183330;
+      --muted: #58716a;
+      --paper: #fbf8ee;
+      --green: #214b3f;
+      --mint: #bed6b6;
+      --orange: #e88739;
+      --yellow: #f5d762;
+      --red: #b94a36;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ink); background: #e9eee2; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', sans-serif; }
+    button, input { font: inherit; }
+    .shell { width: min(100% - 2rem, 76rem); margin-inline: auto; padding-block: 1.3rem 2rem; }
+    .masthead { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .85rem; }
+    .wordmark { display: flex; align-items: center; gap: .65rem; color: var(--green); font-size: .92rem; font-weight: 800; letter-spacing: .075em; text-transform: uppercase; }
+    .wordmark svg { flex: none; }
+    .edition { color: var(--muted); font: .78rem/1.3 Consolas, monospace; text-align: right; }
+    .game-panel { overflow: hidden; border: 1px solid #8da296; border-radius: 8px; background: var(--paper); box-shadow: 0 16px 42px #28493c22; }
+    .game-head { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .85rem 1.2rem; padding: 1rem 1.2rem; color: var(--paper); background: var(--green); }
+    h1 { margin: 0; font-size: clamp(1.3rem, 3.8vw, 2rem); line-height: 1.07; letter-spacing: 0; }
+    .tagline { display: block; margin-top: .24rem; color: #d3e6d0; font-size: .86rem; font-weight: 400; }
+    .stats { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .stat { min-width: 5.4rem; padding: .36rem .7rem; border: 1px solid #ffffff47; border-radius: 5px; text-align: center; }
+    .stat-label { display: block; color: #d3e6d0; font-size: .69rem; text-transform: uppercase; }
+    .stat-value { display: block; margin-top: .05rem; font: 800 1.2rem/1.2 Consolas, monospace; }
+    .tempo-control { display: flex; flex: 1 1 12rem; max-width: 17rem; align-items: center; gap: .65rem; color: #eff6e7; }
+    .tempo-control label { flex: none; font-size: .82rem; font-weight: 700; }
+    .tempo-control input { width: 100%; min-width: 4rem; accent-color: var(--yellow); cursor: pointer; }
+    .tempo-control output { min-width: 3.2rem; color: var(--yellow); font: 800 .85rem Consolas, monospace; text-align: right; }
+    .score-pop { animation: bump .25s ease-out; }
+    @keyframes bump { 50% { transform: scale(1.22); color: var(--yellow); } }
+    .landscape { position: relative; height: clamp(36rem, 88.5vw, 52.5rem); min-height: 525px; overflow: hidden; isolation: isolate; background: linear-gradient(180deg, #91c9db 0%, #c3dfcf 57%, #7eac70 100%); cursor: crosshair; }
+    .landscape.aim-active, .landscape.aim-active .word-target { cursor: none; }
+    .landscape::before, .landscape::after, .meadow { position: absolute; inset: auto -8% 0; pointer-events: none; }
+    .landscape::before { z-index: -2; height: 45%; bottom: 23%; background: #6a9c7d; clip-path: polygon(0 90%, 12% 56%, 23% 76%, 36% 31%, 48% 73%, 63% 28%, 78% 66%, 89% 39%, 100% 78%, 100% 100%, 0 100%); }
+    .landscape::after { z-index: -1; height: 40%; bottom: 10%; background: #4f805f; clip-path: polygon(0 75%, 10% 47%, 22% 78%, 36% 29%, 50% 70%, 63% 40%, 76% 74%, 89% 31%, 100% 60%, 100% 100%, 0 100%); }
+    .meadow { z-index: -1; height: 30%; background: repeating-linear-gradient(102deg, transparent 0 12px, #c0d293 13px 15px, transparent 16px 29px), linear-gradient(180deg, #87a965, #64884e); clip-path: polygon(0 22%, 18% 0, 38% 18%, 57% 2%, 77% 21%, 100% 0, 100% 100%, 0 100%); }
+    .sun { position: absolute; top: 8%; right: 11%; width: 3.5rem; aspect-ratio: 1; border-radius: 50%; background: #ffe599; box-shadow: 0 0 0 .65rem #fff0bc38, 0 0 0 1.25rem #fff0bc1f; pointer-events: none; }
+    .cloud { position: absolute; top: 19%; left: 17%; width: 7rem; height: .9rem; border-radius: 50%; background: #fffaf0a1; filter: blur(1px); pointer-events: none; }
+    .cloud::before, .cloud::after { position: absolute; bottom: -.08rem; content: ''; width: 3.1rem; height: 1.1rem; border-radius: 50%; background: #fffaf0a1; }
+    .cloud::before { left: 1.1rem; }
+    .cloud::after { right: 1rem; }
+    .scenery { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; }
+    .tree { position: absolute; bottom: 9%; width: auto; height: 43%; filter: drop-shadow(2px 3px 2px #294a3830); }
+    .tree-left { left: 3%; height: 43%; }
+    .tree-mid { left: 23%; bottom: 11%; height: 31%; opacity: .84; }
+    .tree-right { right: 5%; height: 47%; }
+    .animal { position: absolute; bottom: 5%; height: 9%; width: auto; filter: drop-shadow(1px 2px 1px #294a3840); }
+    .animal-fox { left: 39%; height: 8%; }
+    .animal-rabbit { right: 24%; height: 7%; }
+    .animal-deer { left: 73%; height: 12%; bottom: 7%; }
+    .birds { position: absolute; top: 28%; right: 20%; width: 4.5rem; height: auto; opacity: .6; }
+    .targets { position: absolute; inset: 0; overflow: hidden; }
+    .word-target { position: absolute; z-index: 1; width: min(14rem, 84vw); aspect-ratio: 1.8; padding: 0; border: 0; background: transparent; color: #283a2e; filter: drop-shadow(0 5px 3px #294a3845); text-align: center; cursor: none; transform: translate(-50%, -50%); animation: appear .24s ease-out both; }
+    .word-target:hover { filter: drop-shadow(0 7px 4px #294a3860) brightness(1.05); }
+    .word-target:focus-visible { outline: 3px solid white; outline-offset: 1px; border-radius: 50%; }
+    .word-target .owl-art { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .owl-body { fill: #926440; }
+    .owl-wing { fill: #684b3a; }
+    .owl-feather { fill: #bd8a52; }
+    .owl-chest { fill: #ead9ad; }
+    .owl-eye-ring { fill: #f5e9c9; }
+    .owl-eye { fill: #292f2b; }
+    .owl-beak { fill: #e5a545; }
+    .owl-claw { fill: none; stroke: #d8b27b; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+    .word-bubble { fill: #fff2cb; stroke: #654834; stroke-width: 3.5; stroke-linejoin: round; }
+    .word-target .spelling { position: absolute; z-index: 1; right: 13%; bottom: 14%; left: 13%; display: grid; height: 18%; place-items: center; overflow-wrap: anywhere; font-size: clamp(.9rem, 1.25vw, 1.1rem); font-weight: 900; line-height: 1.05; text-align: center; }
+    .word-target.hit-typo .word-bubble { fill: #43a85d; stroke: #e6ffe5; }
+    .word-target.hit-correct .word-bubble { fill: #cb473b; stroke: #ffe8de; }
+    .word-target.hit-typo, .word-target.hit-correct { z-index: 2; color: white; pointer-events: none; animation: burst .32s ease-out forwards; }
+    @keyframes burst { 45% { transform: translate(-50%, -50%) scale(1.2); } 100% { transform: translate(-50%, -50%) scale(.72); opacity: 0; } }
+    @keyframes appear { from { opacity: 0; scale: .8; } to { opacity: 1; scale: 1; } }
+    @keyframes blink { to { opacity: .18; } }
+    .shot { position: absolute; z-index: 2; padding: .56rem 1.16rem; border-radius: 6px; background: var(--green); color: white; font: 800 1.7rem Consolas, monospace; pointer-events: none; animation: float-away .8s ease-out forwards; }
+    .shot.good-shot { background: #258448; box-shadow: 0 2px 8px #18333045; }
+    .shot.bad-shot { background: #b83e35; box-shadow: 0 2px 8px #18333045; }
+    @keyframes float-away { to { opacity: 0; transform: translateY(-36px) scale(.8); } }
+    .overlay { position: absolute; z-index: 3; inset: 0; display: grid; place-items: center; padding: 1rem; background: #193b367a; backdrop-filter: blur(3px); }
+    .dialog { width: min(100%, 29rem); padding: clamp(1.1rem, 4vw, 1.8rem); border: 2px solid white; border-radius: 7px; background: var(--paper); box-shadow: 0 12px 35px #18333042; text-align: center; }
+    .dialog h2 { margin: 0 0 .45rem; color: var(--green); font-size: 1.55rem; }
+    .dialog p { margin: .35rem 0; color: #425c50; line-height: 1.5; }
+    .format { display: block; margin: .7rem 0; padding: .7rem; border-left: 4px solid var(--orange); background: #f1eee1; color: #293d33; font: .83rem/1.65 Consolas, monospace; text-align: left; white-space: normal; }
+    .file-label, .start-button { display: inline-flex; min-height: 2.8rem; align-items: center; justify-content: center; gap: .5rem; margin-top: .75rem; padding: .65rem 1.1rem; border: 2px solid var(--green); border-radius: 5px; background: var(--green); color: white; font-weight: 800; cursor: pointer; transition: background .12s, transform .12s; }
+    .file-label:hover, .start-button:hover { transform: translateY(-1px); background: #31614f; }
+    .file-label:focus-within, .start-button:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+    .file-label input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+    .start-button { background: #b4512f; border-color: #b4512f; }
+    .start-button:hover { background: #963f26; }
+    .file-name { display: block; min-height: 1.3rem; margin-top: .45rem; color: var(--muted); font-size: .84rem; overflow-wrap: anywhere; }
+    .error { min-height: 1.3rem; margin-top: .35rem; color: #9c3025; font-size: .86rem; font-weight: 700; }
+    .bottom-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; padding: .8rem 1.1rem; border-top: 1px solid #d5dccd; color: var(--muted); font-size: .86rem; }
+    .bottom-bar strong { color: var(--green); }
+    .hit-flash { position: absolute; z-index: 2; width: 2.2rem; aspect-ratio: 1; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 0 2px var(--orange); pointer-events: none; animation: pop .3s ease-out forwards; }
+    .aim { position: absolute; z-index: 3; display: none; width: 2.65rem; aspect-ratio: 1; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px #183330, inset 0 0 0 1px #18333070, 0 0 5px #18333070; pointer-events: none; transform: translate(-50%, -50%); }
+    .aim.visible { display: block; }
+    .aim::before, .aim::after { position: absolute; top: 50%; left: 50%; content: ''; background: white; box-shadow: 0 0 1px #183330; transform: translate(-50%, -50%); }
+    .aim::before { width: 1px; height: 3.5rem; }
+    .aim::after { width: 3.5rem; height: 1px; }
+    @keyframes pop { to { opacity: 0; scale: 1.9; } }
+    [hidden] { display: none !important; }
+    @media (max-width: 38rem) {
+      .shell { width: min(100% - 1rem, 76rem); padding-top: .7rem; }
+      .wordmark { font-size: .78rem; }
+      .game-head { padding: .8rem; }
+      .stat { min-width: 4.3rem; padding: .3rem .46rem; }
+      .stat-value { font-size: 1.03rem; }
+      .landscape { height: min(100vh, 51rem); min-height: 34.5rem; }
+      .word-target { width: min(12rem, 84vw); }
+      .word-target .spelling { font-size: 1rem; }
+      .bottom-bar { padding-inline: .8rem; font-size: .8rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="masthead">
+      <div class="wordmark">
+        <svg width="29" height="29" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 3 19.4 11.4 28 8 24.6 16.4 30 20 21.3 20.8 22 29 16 22.8 10 29 10.7 20.8 2 20 7.4 16.4 4 8 12.6 11.4 16 3Z" fill="#d68a3a" stroke="#214b3f" stroke-width="2"/><circle cx="16" cy="16" r="3" fill="#fbf8ee"/></svg>
+        Wortjagd
+      </div>
+      <span class="edition" id="list-info">Wortprüfung im freien Gelände</span>
+    </div>
+
+    <section class="game-panel" aria-labelledby="game-title">
+      <header class="game-head">
+        <h1 id="game-title">Wortjagd<span class="tagline">Falsche Schreibweisen ins Visier nehmen</span></h1>
+        <div class="stats" aria-label="Spielstand">
+          <div class="stat"><span class="stat-label">Punkte</span><span class="stat-value" id="score" aria-live="polite">0</span></div>
+          <div class="stat"><span class="stat-label">Zeit</span><span class="stat-value" id="clock" role="timer">60</span></div>
+          <div class="stat"><span class="stat-label">Treffer</span><span class="stat-value" id="hits">0</span></div>
+        </div>
+        <div class="tempo-control">
+          <label for="speed">Flugtempo</label>
+          <input id="speed" type="range" min="50" max="200" step="10" value="100" aria-label="Geschwindigkeit der Eulen in beide Richtungen">
+          <output id="speed-value" for="speed">100%</output>
+        </div>
+      </header>
+
+      <div class="landscape" id="playfield" aria-label="Spielbereich: Falsche Schreibweisen treffen, richtige Wörter verschonen">
+        <div class="sun" aria-hidden="true"></div><div class="cloud" aria-hidden="true"></div><div class="meadow" aria-hidden="true"></div>
+        <div class="scenery" aria-hidden="true">
+          <svg class="tree tree-left" viewBox="0 0 120 280"><path fill="#73533a" d="M53 280 59 135h16l10 145H72l-7-105-3 105Z"/><path fill="#71503a" d="m63 160-30-45 8-5 30 39m3-22 28-43 7 6-25 43"/><g fill="#35694f"><circle cx="59" cy="69" r="39"/><circle cx="33" cy="99" r="29"/><circle cx="87" cy="101" r="31"/><circle cx="57" cy="119" r="34"/></g><g fill="#55835a"><circle cx="47" cy="67" r="25"/><circle cx="79" cy="83" r="25"/><circle cx="35" cy="105" r="18"/></g></svg>
+          <svg class="tree tree-mid" viewBox="0 0 120 280"><path fill="#73533a" d="M53 280 59 135h16l10 145H72l-7-105-3 105Z"/><path fill="#71503a" d="m63 160-30-45 8-5 30 39m3-22 28-43 7 6-25 43"/><g fill="#4a7952"><circle cx="59" cy="69" r="39"/><circle cx="33" cy="99" r="29"/><circle cx="87" cy="101" r="31"/><circle cx="57" cy="119" r="34"/></g><g fill="#67915e"><circle cx="47" cy="67" r="25"/><circle cx="79" cy="83" r="25"/></g></svg>
+          <svg class="tree tree-right" viewBox="0 0 120 280"><path fill="#73533a" d="M53 280 59 135h16l10 145H72l-7-105-3 105Z"/><path fill="#71503a" d="m63 160-30-45 8-5 30 39m3-22 28-43 7 6-25 43"/><g fill="#35694f"><circle cx="59" cy="69" r="39"/><circle cx="33" cy="99" r="29"/><circle cx="87" cy="101" r="31"/><circle cx="57" cy="119" r="34"/></g><g fill="#55835a"><circle cx="47" cy="67" r="25"/><circle cx="79" cy="83" r="25"/><circle cx="35" cy="105" r="18"/></g></svg>
+          <svg class="animal animal-fox" viewBox="0 0 120 60"><path fill="#bd6537" d="M12 37q17-24 43-12l18 13 14-9 10 5 10 3-7 7-14-1-12 11-7-2 2-9-24 2-5 10h-7l1-12-11 11h-7l5-16-18 5Z"/><path fill="#f2d9a8" d="m99 38 11-1-6 7-12-1m-42 2 9-1-3 9h-5Z"/><circle cx="100" cy="37" r="1.5" fill="#26362c"/></svg>
+          <svg class="animal animal-rabbit" viewBox="0 0 80 70"><ellipse cx="39" cy="48" rx="25" ry="15" fill="#a99c7e"/><circle cx="56" cy="36" r="12" fill="#a99c7e"/><path fill="#a99c7e" d="M50 27Q39 0 44 2q13 4 13 24m3 1Q57 3 63 5q9 9 2 22"/><circle cx="60" cy="35" r="2" fill="#28382e"/><circle cx="15" cy="45" r="6" fill="#f3ebd7"/><path fill="#a99c7e" d="M25 57v7m24-7v7" stroke="#a99c7e" stroke-width="5" stroke-linecap="round"/></svg>
+          <svg class="animal animal-deer" viewBox="0 0 100 100"><path fill="#9a6944" d="M20 39q15-9 39 1l17 11-4 9-13-8-4 34h-6l-3-31H36l-5 31h-6l3-40-14 3Z"/><path fill="#9a6944" d="m68 48 8-18 10-7 8 5-7 8-4 18Z"/><path fill="none" stroke="#755239" stroke-width="4" stroke-linecap="round" d="m80 27-4-15m4 8-9-9m11 10 8-11m-2 13 10-6"/><circle cx="86" cy="35" r="1.7" fill="#26362c"/></svg>
+          <svg class="birds" viewBox="0 0 100 40"><path d="M4 20q10-16 20 0 10-16 20 0m18-9q8-13 16 0 8-13 16 0" fill="none" stroke="#446e68" stroke-width="3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="targets" id="targets" aria-live="off"></div>
+        <div class="aim" id="aim" aria-hidden="true"></div>
+        <section class="overlay" id="overlay" aria-labelledby="dialog-title">
+          <div class="dialog" id="dialog">
+            <h2 id="dialog-title">Melde dich zum Wörterflug!</h2>
+            <p>Wähle deine Wortliste. Auf jeder Zeile steht zuerst die richtige Schreibweise, danach folgen die Fehler.</p>
+            <code class="format">Richtig, falsche Schreibweise, noch ein Fehler</code>
+            <label class="file-label">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5M12 3v12"/></svg>
+              Wortliste laden
+              <input id="file-input" type="file" accept=".txt,text/plain" aria-label="Textdatei mit der Wortliste auswählen">
+            </label>
+            <span class="file-name" id="file-name">Beispiel: wortliste.txt</span>
+            <p class="error" id="error" role="alert"></p>
+            <button type="button" class="start-button" id="start" hidden>Spiel starten</button>
+            <p>Fehler getroffen: <strong>+100 Punkte</strong>. Richtige Schreibweise getroffen: <strong>−150 Punkte</strong>.</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="bottom-bar">
+        <span><strong>Auftrag:</strong> Triff nur die falsch geschriebenen Wörter.</span>
+        <span>60 Sekunden <span aria-hidden="true">·</span> Klick oder tippe zum Schießen</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const $ = (selector) => document.querySelector(selector);
+      const input = $('#file-input');
+      const overlay = $('#overlay');
+      const dialogTitle = $('#dialog-title');
+      const fileName = $('#file-name');
+      const error = $('#error');
+      const startButton = $('#start');
+      const field = $('#playfield');
+      const targetsRoot = $('#targets');
+      const scoreDisplay = $('#score');
+      const timerDisplay = $('#clock');
+      const hitsDisplay = $('#hits');
+      const speedSlider = $('#speed');
+      const speedValue = $('#speed-value');
+      const aim = $('#aim');
+      const roundSeconds = 60;
+      let speedMultiplier = Number(speedSlider.value) / 100;
+      let wordPairs = [];
+      let score = 0;
+      let hits = 0;
+      let secondsLeft = roundSeconds;
+      let running = false;
+      let spawnTimer = 0;
+      let clockTimer = 0;
+      let nextTargetId = 0;
+      let audioContext = null;
+
+      function getAudioContext() {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        if (!audioContext) audioContext = new AudioContextClass();
+        if (audioContext.state === 'suspended') audioContext.resume().catch(() => {});
+        return audioContext;
+      }
+
+      function playShot() {
+        const context = getAudioContext();
+        if (!context) return;
+        const now = context.currentTime;
+        const makeNoise = (duration) => {
+          const length = Math.ceil(context.sampleRate * duration);
+          const buffer = context.createBuffer(1, length, context.sampleRate);
+          const samples = buffer.getChannelData(0);
+          for (let index = 0; index < length; index += 1) {
+            samples[index] = (Math.random() * 2 - 1) * (1 - index / length);
+          }
+          const source = context.createBufferSource();
+          source.buffer = buffer;
+          return source;
+        };
+
+        const blast = makeNoise(.18);
+        const blastFilter = context.createBiquadFilter();
+        blastFilter.type = 'lowpass';
+        blastFilter.frequency.setValueAtTime(1900, now);
+        const blastVolume = context.createGain();
+        blastVolume.gain.setValueAtTime(.55, now);
+        blastVolume.gain.exponentialRampToValueAtTime(.001, now + .18);
+        blast.connect(blastFilter).connect(blastVolume).connect(context.destination);
+        blast.start(now);
+
+        const crack = makeNoise(.045);
+        const crackFilter = context.createBiquadFilter();
+        crackFilter.type = 'highpass';
+        crackFilter.frequency.setValueAtTime(1250, now);
+        const crackVolume = context.createGain();
+        crackVolume.gain.setValueAtTime(.3, now);
+        crackVolume.gain.exponentialRampToValueAtTime(.001, now + .045);
+        crack.connect(crackFilter).connect(crackVolume).connect(context.destination);
+        crack.start(now);
+
+        const boom = context.createOscillator();
+        const boomVolume = context.createGain();
+        boom.type = 'triangle';
+        boom.frequency.setValueAtTime(92, now);
+        boom.frequency.exponentialRampToValueAtTime(40, now + .14);
+        boomVolume.gain.setValueAtTime(.34, now);
+        boomVolume.gain.exponentialRampToValueAtTime(.001, now + .16);
+        boom.connect(boomVolume).connect(context.destination);
+        boom.start(now);
+        boom.stop(now + .17);
+      }
+
+      function playOwlSqueak() {
+        const context = getAudioContext();
+        if (!context) return;
+        const now = context.currentTime;
+        const squeak = context.createOscillator();
+        const squeakVolume = context.createGain();
+        squeak.type = 'sine';
+        squeak.frequency.setValueAtTime(680, now);
+        squeak.frequency.exponentialRampToValueAtTime(1320, now + .085);
+        squeak.frequency.exponentialRampToValueAtTime(560, now + .31);
+        squeakVolume.gain.setValueAtTime(.001, now);
+        squeakVolume.gain.linearRampToValueAtTime(.18, now + .025);
+        squeakVolume.gain.exponentialRampToValueAtTime(.001, now + .32);
+        squeak.connect(squeakVolume).connect(context.destination);
+        squeak.start(now);
+        squeak.stop(now + .33);
+
+        const overtone = context.createOscillator();
+        const overtoneVolume = context.createGain();
+        overtone.type = 'triangle';
+        overtone.frequency.setValueAtTime(1120, now);
+        overtone.frequency.exponentialRampToValueAtTime(1840, now + .085);
+        overtone.frequency.exponentialRampToValueAtTime(920, now + .3);
+        overtoneVolume.gain.setValueAtTime(.001, now);
+        overtoneVolume.gain.linearRampToValueAtTime(.035, now + .025);
+        overtoneVolume.gain.exponentialRampToValueAtTime(.001, now + .31);
+        overtone.connect(overtoneVolume).connect(context.destination);
+        overtone.start(now);
+        overtone.stop(now + .32);
+      }
+
+      function playDisappointedOwl() {
+        const context = getAudioContext();
+        if (!context) return;
+        const now = context.currentTime;
+        const playSigh = (start, highNote, lowNote, duration, volume) => {
+          const voice = context.createOscillator();
+          const voiceVolume = context.createGain();
+          voice.type = 'triangle';
+          voice.frequency.setValueAtTime(highNote, start);
+          voice.frequency.exponentialRampToValueAtTime(lowNote, start + duration);
+          voiceVolume.gain.setValueAtTime(.001, start);
+          voiceVolume.gain.linearRampToValueAtTime(volume, start + .035);
+          voiceVolume.gain.exponentialRampToValueAtTime(.001, start + duration + .025);
+          voice.connect(voiceVolume).connect(context.destination);
+          voice.start(start);
+          voice.stop(start + duration + .03);
+        };
+
+        playSigh(now, 520, 360, .2, .14);
+        playSigh(now + .17, 390, 235, .29, .12);
+      }
+
+      field.addEventListener('pointerdown', (event) => {
+        if (running && event.button === 0) playShot();
+      });
+
+      speedSlider.addEventListener('input', () => {
+        speedMultiplier = Number(speedSlider.value) / 100;
+        speedValue.value = `${speedSlider.value}%`;
+        speedValue.textContent = speedValue.value;
+      });
+
+      field.addEventListener('pointermove', (event) => {
+        if (event.pointerType !== 'mouse') return;
+        const bounds = field.getBoundingClientRect();
+        aim.style.left = `${event.clientX - bounds.left}px`;
+        aim.style.top = `${event.clientY - bounds.top}px`;
+        aim.classList.add('visible');
+      });
+      field.addEventListener('pointerleave', () => aim.classList.remove('visible'));
+
+      function parseWords(text) {
+        const valid = [];
+        const issues = [];
+        for (const [index, rawLine] of text.replace(/^\uFEFF/, '').split(/\r?\n/).entries()) {
+          const line = rawLine.trim();
+          if (!line) continue;
+          const words = line.split(',').map((word) => word.trim());
+          if (words.length < 2 || words.some((word) => !word)) {
+            issues.push(index + 1);
+            continue;
+          }
+          valid.push({ correct: words[0], wrong: words.slice(1) });
+        }
+        return { valid, issues };
+      }
+
+      input.addEventListener('change', async () => {
+        const file = input.files && input.files[0];
+        startButton.hidden = true;
+        error.textContent = '';
+        if (!file) return;
+        try {
+          const parsed = parseWords(await file.text());
+          if (!parsed.valid.length) throw new Error('Keine gültigen Zeilen gefunden. Jede Zeile braucht ein richtiges Wort und mindestens einen Fehler, getrennt durch Kommas.');
+          wordPairs = parsed.valid;
+          fileName.textContent = `${file.name} · ${wordPairs.length} Wortgruppen`;
+          if (parsed.issues.length) {
+            const preview = parsed.issues.slice(0, 5).join(', ');
+            error.textContent = `Zeile(n) ${preview}${parsed.issues.length > 5 ? ', …' : ''} übersprungen: Eintrag oder Komma fehlt.`;
+          }
+          $('#list-info').textContent = `${wordPairs.length} Wortgruppen geladen`;
+          startButton.hidden = false;
+        } catch (exception) {
+          wordPairs = [];
+          fileName.textContent = file.name;
+          error.textContent = exception.message || 'Die Datei konnte nicht gelesen werden.';
+        }
+      });
+
+      function updateScore(amount) {
+        score += amount;
+        scoreDisplay.textContent = String(score);
+        scoreDisplay.classList.remove('score-pop');
+        void scoreDisplay.offsetWidth;
+        scoreDisplay.classList.add('score-pop');
+      }
+
+      function spawnTarget() {
+        if (!running || targetsRoot.children.length >= 11 || !wordPairs.length) return;
+        const pair = wordPairs[Math.floor(Math.random() * wordPairs.length)];
+        const isWrong = Math.random() < 0.7;
+        const word = isWrong ? pair.wrong[Math.floor(Math.random() * pair.wrong.length)] : pair.correct;
+        const rect = field.getBoundingClientRect();
+        const margin = Math.min(120, rect.width * .2);
+        const startX = margin + Math.random() * Math.max(1, rect.width - margin * 2);
+        const startY = rect.height * (.19 + Math.random() * .56);
+        const direction = Math.random() < .5 ? -1 : 1;
+        const element = document.createElement('button');
+        const targetId = ++nextTargetId;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 16 + Math.random() * 27;
+        element.type = 'button';
+        element.className = 'word-target';
+        element.dataset.id = String(targetId);
+        element.dataset.x = String(startX);
+        element.dataset.y = String(startY);
+        element.dataset.dx = String(Math.cos(angle) * speed * direction);
+        element.dataset.dy = String(Math.sin(angle) * speed * .42);
+        element.dataset.age = '0';
+        element.dataset.correct = isWrong ? 'false' : 'true';
+        element.setAttribute('aria-label', `Wort abschießen: ${word}`);
+        const owl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        owl.setAttribute('class', 'owl-art');
+        owl.setAttribute('viewBox', '0 0 240 165');
+        owl.setAttribute('aria-hidden', 'true');
+        owl.innerHTML = '<path class="word-bubble" d="M43 103h154a13 13 0 0 1 13 13v20a13 13 0 0 1-13 13H43a13 13 0 0 1-13-13v-20a13 13 0 0 1 13-13Z"/><path class="owl-wing" d="M91 48C65 19 25 25 4 56c22-5 40 14 78 35l23-12zm58 0c26-29 66-23 87 8-22-5-40 14-78 35l-23-12z"/><path class="owl-feather" d="M24 50q28-14 62 16l-8 9Q48 56 24 50zm192 0q-28-14-62 16l8 9q30-19 54-25z"/><path class="owl-body" d="M83 87c1-30 4-53 20-67l17-14 17 14c16 14 19 37 20 67l-18 10H101z"/><path class="owl-chest" d="M94 78q4-28 26-30 22 2 26 30l-11 13h-30z"/><circle class="owl-eye-ring" cx="106" cy="48" r="15"/><circle class="owl-eye-ring" cx="134" cy="48" r="15"/><circle class="owl-eye" cx="108" cy="49" r="6"/><circle class="owl-eye" cx="132" cy="49" r="6"/><path class="owl-beak" d="m116 59 4 9 4-9z"/><path class="owl-claw" d="M103 89v11l-6 5m6-5 6 5m28-16v11l-6 5m6-5 6 5"/>';
+        const spelling = document.createElement('span');
+        spelling.className = 'spelling';
+        spelling.textContent = word;
+        element.append(owl, spelling);
+        element.addEventListener('click', (event) => {
+          if (event.detail === 0) playShot();
+          shoot(element);
+        });
+        targetsRoot.append(element);
+        element.style.left = `${startX}px`;
+        element.style.top = `${startY}px`;
+      }
+
+      function shoot(target) {
+        if (!running || !target.isConnected || target.dataset.hit) return;
+        target.dataset.hit = 'true';
+        target.disabled = true;
+        const rect = target.getBoundingClientRect();
+        const fieldRect = field.getBoundingClientRect();
+        const hitX = rect.left - fieldRect.left + rect.width / 2;
+        const hitY = rect.top - fieldRect.top;
+        const marker = document.createElement('span');
+        marker.className = 'hit-flash';
+        marker.setAttribute('aria-hidden', 'true');
+        marker.style.left = `${rect.left - fieldRect.left + rect.width / 2 - 17}px`;
+        marker.style.top = `${rect.top - fieldRect.top + rect.height / 2 - 17}px`;
+        field.append(marker);
+        window.setTimeout(() => marker.remove(), 350);
+        if (target.dataset.correct === 'true') {
+          playDisappointedOwl();
+          updateScore(-150);
+          target.classList.add('hit-correct');
+          showShotNote(hitX, hitY, '−150', 'bad-shot');
+        } else {
+          playOwlSqueak();
+          updateScore(100);
+          hits += 1;
+          hitsDisplay.textContent = String(hits);
+          target.classList.add('hit-typo');
+          showShotNote(hitX, hitY, '+100', 'good-shot');
+        }
+        window.setTimeout(() => target.remove(), 320);
+      }
+
+      function showShotNote(x, y, text, kind) {
+        const note = document.createElement('span');
+        note.className = `shot ${kind}`;
+        note.textContent = text;
+        note.style.left = `${x}px`;
+        note.style.top = `${y}px`;
+        field.append(note);
+        window.setTimeout(() => note.remove(), 850);
+      }
+
+      let previousFrame = 0;
+      function animate(now) {
+        if (!running) return;
+        const elapsed = Math.min((now - previousFrame) / 1000, .05);
+        previousFrame = now;
+        const width = field.clientWidth;
+        const height = field.clientHeight;
+        for (const target of targetsRoot.children) {
+          let x = Number(target.dataset.x) + Number(target.dataset.dx) * elapsed * speedMultiplier;
+          let y = Number(target.dataset.y) + Number(target.dataset.dy) * elapsed * speedMultiplier;
+          let age = Number(target.dataset.age) + elapsed;
+          const halfWidth = target.offsetWidth / 2;
+          const halfHeight = target.offsetHeight / 2;
+          if (x < halfWidth || x > width - halfWidth) {
+            target.dataset.dx = String(-Number(target.dataset.dx));
+            x = Math.max(halfWidth, Math.min(width - halfWidth, x));
+          }
+          if (y < halfHeight || y > height * .84 - halfHeight) {
+            target.dataset.dy = String(-Number(target.dataset.dy));
+            y = Math.max(halfHeight, Math.min(height * .84 - halfHeight, y));
+          }
+          target.dataset.x = String(x);
+          target.dataset.y = String(y);
+          target.dataset.age = String(age);
+          target.style.left = `${x}px`;
+          target.style.top = `${y}px`;
+          if (age > 8) target.remove();
+        }
+        requestAnimationFrame(animate);
+      }
+
+      function finishRound() {
+        running = false;
+        field.classList.remove('aim-active');
+        aim.classList.remove('visible');
+        window.clearInterval(spawnTimer);
+        window.clearInterval(clockTimer);
+        targetsRoot.replaceChildren();
+        overlay.hidden = false;
+        dialogTitle.textContent = 'Runde vorbei!';
+        const summary = document.createElement('p');
+        summary.innerHTML = `Endstand: <strong>${score} Punkte</strong><br>${hits} falsch geschriebene Wörter getroffen.`;
+        const oldSummary = $('#round-summary');
+        if (oldSummary) oldSummary.remove();
+        summary.id = 'round-summary';
+        $('#dialog').insertBefore(summary, startButton);
+        startButton.textContent = 'Noch eine Runde';
+        startButton.hidden = false;
+        startButton.focus();
+      }
+
+      function startRound() {
+        if (!wordPairs.length) return;
+        score = 0;
+        hits = 0;
+        secondsLeft = roundSeconds;
+        scoreDisplay.textContent = '0';
+        hitsDisplay.textContent = '0';
+        timerDisplay.textContent = String(secondsLeft);
+        targetsRoot.replaceChildren();
+        const oldSummary = $('#round-summary');
+        if (oldSummary) oldSummary.remove();
+        overlay.hidden = true;
+        field.classList.add('aim-active');
+        dialogTitle.textContent = 'Melde dich zum Wörterflug!';
+        startButton.textContent = 'Spiel starten';
+        running = true;
+        previousFrame = performance.now();
+        for (let index = 0; index < 3; index += 1) spawnTarget();
+        requestAnimationFrame(animate);
+        spawnTimer = window.setInterval(spawnTarget, 1840);
+        clockTimer = window.setInterval(() => {
+          secondsLeft -= 1;
+          timerDisplay.textContent = String(secondsLeft);
+          if (secondsLeft <= 0) finishRound();
+        }, 1000);
+      }
+
+      startButton.addEventListener('click', startRound);
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && running) finishRound();
+      });
+    })();
+  </script>
+</body>
+</html>
