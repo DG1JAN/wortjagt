@@ -1,8 +1,12 @@
+!!! Achtung VibeCode -- ich gebe keinerlei Garantie -- Work in Progress !!!
+
 # Wortjagd
 
 `index.html` direkt im Browser öffnen. Zum Start `wortliste.txt` auswählen.
 Der Browser liest die ausgewählte Datei lokal; ein Webserver oder eine
 Internetverbindung wird nicht benötigt.
+
+![Screenshot](screenshot.png)
 
 ## Wortliste bearbeiten
 
